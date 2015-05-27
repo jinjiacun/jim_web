@@ -1,8 +1,15 @@
 #include "request.h"
 #include "content_type.h"
 #include "list.h"
+#include<string.h>
 #ifndef __RESPONSE__
 #define __RESPONSE__
+enum ext_type
+{
+	UNKNOWN,
+    HTML,
+	PHP
+};
 typedef struct
 {
 	int * client_sockfd;

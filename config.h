@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/socket.h>  
-#include <netinet/in.h>  
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -14,4 +14,11 @@
 #define WWW_DIR "www"
 #define MAX_PROCESS 8
 #define FD_SETSIZE 1024
+
+/*type of request*/
+enum _req_type
+{
+	STATIC,
+	DYNAMIC
+};
 #endif

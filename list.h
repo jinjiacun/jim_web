@@ -1,6 +1,6 @@
 #ifndef __LIST__
 #define __LIST__
-#define NULL 0
+/*#define NULL 0*/
 #define CONTENT_LEN 10000
 typedef struct list_s
 {

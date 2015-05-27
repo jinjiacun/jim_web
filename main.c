@@ -55,23 +55,9 @@ int main()
     } 
     FD_ZERO(&allset); 
     FD_SET(server_sockfd, &allset);
-    //ppid = getpid();
-    /*创建多个进程*/
-	//init_process(my_process, MAX_PROCESS);    
 
     for(;;)
-	{ 
-        /*
-	    if((client_sockfd=accept(server_sockfd,(struct sockaddr *)&remote_addr,&sin_size))<0)
-    	{
-       		perror("accept");
-       	 	return 1;
-    	}
-	    	
-		my_request = do_request(client_sockfd);
-		do_response(my_request);
-		close(client_sockfd);		
-		*/
+	{
         reset = allset;
         nready = select(maxfd+1, &reset, NULL, NULL, NULL); 
         

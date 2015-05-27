@@ -12,11 +12,16 @@ typedef struct
 	enum request_method method;
 	unsigned int method_size;
 	unsigned int method_off;
+
 	char * url;
 	unsigned int url_size;
+
+/*	_req_type req_type;*/
+
+
     enum request_source source_type;
 	char * file_path;
-    enum request_file_type file_type; 
+    enum request_file_type file_type;
 	unsigned int file_path_size;
 	//...
 }request_t;

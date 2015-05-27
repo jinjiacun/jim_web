@@ -6,7 +6,7 @@ list_init()
 	list_t * tmp_list;
 
 	tmp_list = (list_t *)malloc(sizeof(list_t));
-	if(NULL == tmp_list) return NULL;
+	if(0 == tmp_list) return 0;
 	
 	tmp_list->next = tmp_list;
 	tmp_list->pre  = tmp_list;
@@ -23,7 +23,7 @@ unsigned int buf_size;
 	list_t * tmp_list;
 
 	tmp_list = (list_t *)malloc(sizeof(list_t));
-	if(NULL == tmp_list) return;
+	if(0 == tmp_list) return;
 
 	if(buf_size <= CONTENT_LEN)
 	{
@@ -54,7 +54,7 @@ list_t * my_list;
 	}
     else
 	{
-        return NULL;
+        return 0;
     }
 
 	return tmp_list;

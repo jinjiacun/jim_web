@@ -3,6 +3,7 @@
 #include "config.h"
 #include "list.h"
 
+extern enum ext_type;
 static list_t * my_list;
 static void set_status_code(response_t * my_response);
 static void set_content_type(request_t * my_request, response_t * my_response);
@@ -10,6 +11,8 @@ static void set_head(response_t * my_response);
 static void set_body(response_t * my_response,
                      request_t  * my_request);
 static void do_send(response_t * my_response);
+//查找点号最后出现的位置
+static enum ext_type find_ext(char * file_name);
 
 //init response
 static response_t *
@@ -70,17 +73,17 @@ request_t * my_request;
 response_t * my_response;
 {
 	struct stat info;
-    
+
     if(stat(my_request->file_path, &info) <0)
 	{
     	perror("info error\n");
     }
     else
     {
-    	my_response->content_size = info.st_size;   
+    	my_response->content_size = info.st_size;
     }
 	//判定文件后缀名
-    
+
    //my_response->content_type = "image/jpeg";
    //my_response->content_type = "text/html";
    //my_response->content_type = "image/webp";
@@ -106,23 +109,37 @@ set_body(my_response, my_request)
 response_t * my_response;
 request_t * my_request;
 {
-    char * file_name;
+    char *file_name;
     char * buff;
     int file_fd;
 	struct stat info;
 	int count;
+	enum ext_type exec_type;
+	char *tag="./www/index.html";
+	
+	file_name = my_request->file_path;
+	//memcpy(file_name, my_request->file_path, strlen(my_request->file_path));
+	//memcpy(file_name, tag, strlen(tag));
 
-	file_name = my_request->file_path;	
     printf("file:%s\n",file_name);
     if(stat(file_name, &info) <0)
 		perror("info error\n");
 
     buff = (char *)malloc(CONTENT_LEN);
     memset(buff, 0, CONTENT_LEN);
+	exec_type = find_ext(file_name);
+	//exec_type = HTML;
+
 	if(S_ISDIR(info.st_mode))
 	{
 		//dir
 		strcpy(buff, "this is dir");
+	}
+	else if(PHP == exec_type)//判定是否是cgi
+	{
+		//执行php脚本
+        //todo::
+        printf("this is exec cgi\n");
 	}
 	else
 	{
@@ -140,7 +157,59 @@ request_t * my_request;
     	close(file_fd);
 	}
 
+
     my_response->body  = my_list;
+}
+
+//查找点号最后出现的位置
+static enum ext_type
+find_ext(file_name)
+char * file_name;
+{
+	char *cur_file_name;
+    char *ext_name;
+	char *html = "html";
+	char *php = "php";
+	const char split[] = ".";
+    char *p= NULL;
+	char *out=NULL;
+	
+	cur_file_name = malloc(sizeof(char *)*1024);
+	memcpy(cur_file_name, file_name, strlen(file_name));
+	p = strtok_r(cur_file_name, split, &out);
+	printf("p:%s\n", p);
+	ext_name = p;
+	while(NULL != p)
+	{
+		printf("p:%s\n", p);
+	    ext_name = p;
+    	p = strtok_r(NULL, split, &out);  
+	}
+	/*
+    p = strtok_r(NULL, split, &out);  
+	printf("p:%s\n", p);
+	ext_name = p;
+	*/
+	/*
+    while((p = strtok_r(cur_file_name, split, &out)) != NULL);
+	{
+		printf("p:%s\n", p);
+		ext_name =  p;
+	}
+	*/
+	
+	//return PHP;
+	
+	if(!strcmp(ext_name, html))
+	{
+		return HTML;
+	}
+	else if(!strcmp(ext_name, php))
+	{
+		return PHP;
+	}
+
+	return UNKNOWN;
 }
 
 //send
@@ -150,12 +219,12 @@ response_t * my_response;
 {
 	int len;
 	list_t * tmp_list;
-    
+
 	//send head
 	send(my_response->client_sockfd, my_response->head,
-         strlen(my_response->head), 0); 
+         strlen(my_response->head), 0);
 	while(NULL != (tmp_list= list_pop(my_list)))
-	{   	
+	{
         send(my_response->client_sockfd,
         	 tmp_list->content,
          	 tmp_list->last,0);
