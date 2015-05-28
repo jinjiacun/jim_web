@@ -14,6 +14,8 @@
 #define WWW_DIR "www"
 #define MAX_PROCESS 8
 #define FD_SETSIZE 1024
+#define FIFO "/tmp/fifo"//有名管道信息
+#define PHP_PATH "/usr/local/bin/php-cgi"
 
 /*type of request*/
 enum _req_type

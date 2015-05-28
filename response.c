@@ -134,13 +134,7 @@ request_t * my_request;
 	else if(PHP == exec_type)//判定是否是cgi
 	{
 		//执行php脚本
-        //todo::
-        if((file_fd = open("/dev/null", O_RDWR)) == 0)
-        {
-       		 perror("open file error");
-        }
-
-        close(file_fd);
+		call_php(file_name, my_list);
 	}
 	else
 	{
@@ -186,20 +180,6 @@ char * file_name;
 	    ext_name = p;
     	p = strtok_r(NULL, split, &out);
 	}
-	/*
-    p = strtok_r(NULL, split, &out);
-	printf("p:%s\n", p);
-	ext_name = p;
-	*/
-	/*
-    while((p = strtok_r(cur_file_name, split, &out)) != NULL);
-	{
-		printf("p:%s\n", p);
-		ext_name =  p;
-	}
-	*/
-
-	//return PHP;
 
 	if(!strcmp(ext_name, html))
 	{

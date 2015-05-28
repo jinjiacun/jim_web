@@ -34,6 +34,9 @@ int main()
         perror("socket");
         return 1;
     }
+	
+	int sock_reuse = 1;
+	setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEADDR, (char *)&sock_reuse, sizeof(sock_reuse));
 
         /*将套接字绑定到服务器的网络地址上*/
     if (bind(server_sockfd,(struct sockaddr *)&my_addr,sizeof(struct sockaddr))<0)
