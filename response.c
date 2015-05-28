@@ -115,11 +115,8 @@ request_t * my_request;
 	struct stat info;
 	int count;
 	enum ext_type exec_type;
-	char *tag="./www/index.html";
-	
+
 	file_name = my_request->file_path;
-	//memcpy(file_name, my_request->file_path, strlen(my_request->file_path));
-	//memcpy(file_name, tag, strlen(tag));
 
     printf("file:%s\n",file_name);
     if(stat(file_name, &info) <0)
@@ -128,7 +125,6 @@ request_t * my_request;
     buff = (char *)malloc(CONTENT_LEN);
     memset(buff, 0, CONTENT_LEN);
 	exec_type = find_ext(file_name);
-	//exec_type = HTML;
 
 	if(S_ISDIR(info.st_mode))
 	{
@@ -139,7 +135,12 @@ request_t * my_request;
 	{
 		//执行php脚本
         //todo::
-        printf("this is exec cgi\n");
+        if((file_fd = open("/dev/null", O_RDWR)) == 0)
+        {
+       		 perror("open file error");
+        }
+
+        close(file_fd);
 	}
 	else
 	{
@@ -173,8 +174,8 @@ char * file_name;
 	const char split[] = ".";
     char *p= NULL;
 	char *out=NULL;
-	
-	cur_file_name = malloc(sizeof(char *)*1024);
+
+	cur_file_name = malloc(sizeof(char *)*strlen(file_name));
 	memcpy(cur_file_name, file_name, strlen(file_name));
 	p = strtok_r(cur_file_name, split, &out);
 	printf("p:%s\n", p);
@@ -183,10 +184,10 @@ char * file_name;
 	{
 		printf("p:%s\n", p);
 	    ext_name = p;
-    	p = strtok_r(NULL, split, &out);  
+    	p = strtok_r(NULL, split, &out);
 	}
 	/*
-    p = strtok_r(NULL, split, &out);  
+    p = strtok_r(NULL, split, &out);
 	printf("p:%s\n", p);
 	ext_name = p;
 	*/
@@ -197,9 +198,9 @@ char * file_name;
 		ext_name =  p;
 	}
 	*/
-	
+
 	//return PHP;
-	
+
 	if(!strcmp(ext_name, html))
 	{
 		return HTML;
