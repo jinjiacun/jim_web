@@ -11,6 +11,7 @@
 #include <string.h>
 #include <memory.h>
 #include <sys/select.h>
+#include <signal.h>
 #define WWW_DIR "www"
 #define MAX_PROCESS 8
 #define FD_SETSIZE 1024
@@ -23,4 +24,12 @@ enum _req_type
 	STATIC,
 	DYNAMIC
 };
+/*
+void cleanup(int signal)
+{
+	int status;
+//	while(waitpid((pid_t)(-1),0, WNOHANG)>0){}
+}
+*/
+
 #endif

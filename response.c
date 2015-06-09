@@ -125,6 +125,7 @@ request_t * my_request;
     buff = (char *)malloc(CONTENT_LEN);
     memset(buff, 0, CONTENT_LEN);
 	exec_type = find_ext(file_name);
+	//exec_type = PHP;
 
 	if(S_ISDIR(info.st_mode))
 	{
@@ -161,7 +162,7 @@ static enum ext_type
 find_ext(file_name)
 char * file_name;
 {
-	char *cur_file_name;
+	char cur_file_name[4096];
     char *ext_name;
 	char *html = "html";
 	char *php = "php";
@@ -169,7 +170,8 @@ char * file_name;
     char *p= NULL;
 	char *out=NULL;
 
-	cur_file_name = malloc(sizeof(char *)*strlen(file_name));
+	//cur_file_name = malloc(sizeof(char *)*strlen(file_name));
+	memset(cur_file_name, 0, 4096);
 	memcpy(cur_file_name, file_name, strlen(file_name));
 	p = strtok_r(cur_file_name, split, &out);
 	printf("p:%s\n", p);
@@ -201,9 +203,12 @@ response_t * my_response;
 	int len;
 	list_t * tmp_list;
 
-	//send head
+	//send head:html
 	send(my_response->client_sockfd, my_response->head,
          strlen(my_response->head), 0);
+	//php
+	char *head = "";
+
 	while(NULL != (tmp_list= list_pop(my_list)))
 	{
         send(my_response->client_sockfd,

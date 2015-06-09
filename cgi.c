@@ -5,7 +5,7 @@
 void
 call_php(file_name, list)
 char * file_name;
-char ** list;
+list_t * list;
 {
 	int fd;
 	int pid;
@@ -45,20 +45,36 @@ char ** list;
 				execv(PHP_PATH, args);	
 				printf("child err\n");
 			}
+			break;
+		case -1:
+			break;
 		default:
 			{	
-				waitpid(pid);
+				wait(pid);
 				read(fd, buff, 53);
 				memset(buff, 0, 53);
 				while(size = read(fd, buff, 4096))
 				{
+					if(size<0)
+						break;
 					list_push(list, buff, size);
-					memset(buff, 0, size);
+					memset(buff, 0, 4096);
 					if(size <4096)
 						break;
 				}
+				/*								
+				int res = kill(pid, SIGINT);
+				if(-1 == res)
+				{
+					printf("kill child failt\n");
+					waitpid(pid);
+				}
+				*/
+				//sleep(3);				
+			//	close(fd);
 			} 
+			break;
 	}
-
-	
+		
+	close(fd);
 }

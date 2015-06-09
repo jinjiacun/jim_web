@@ -27,6 +27,7 @@ int main()
     my_addr.sin_addr.s_addr=INADDR_ANY;//服务器IP地址--允许连接到所有本地地址上
     my_addr.sin_port=htons(8000); //服务器端口号
     int nready;
+	//signal(SIGCHLD, cleanup);
 
     /*创建服务器端套接字--IPv4协议，面向连接通信，TCP协议*/
     if((server_sockfd=socket(PF_INET,SOCK_STREAM,0))<0)
