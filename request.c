@@ -4,6 +4,7 @@
 static void get_command_line(request_t * my_request);
 static void parse_command_line(request_t * my_request);
 static void get_file_path(request_t * my_request);
+static void parse_param(request_t * my_request);
 
 //init request
 static request_t *
@@ -17,9 +18,9 @@ int client_sockfd;
     my_request->client_sockfd = client_sockfd;
     my_request->comm_line_size= 1024;
     my_request->comm_line     = (char *)malloc(my_request->comm_line_size);
-    my_request->method_size   = 1024;
-    my_request->url_size      = 1024;
-    my_request->url           = (char *)malloc(my_request->url_size);
+    my_request->method_size    = 0;
+    my_request->url_last      = 0;
+    my_request->url_size      = 0;
     my_request->file_path_size= 1024;
     my_request->file_path     = (char *)malloc(my_request->file_path_size);
 
@@ -67,13 +68,18 @@ request_t * my_request;
     while('\r' != cur_char && cur_index < buff_len-1)
     {
         *(my_request->comm_line+cur_index) = cur_char;
-        cur_index ++;
-        cur_char = buff[cur_index];
+        cur_char = buff[++cur_index];
     }
     *(my_request->comm_line + cur_index)= '\0';
 }
 
-//parse_command_line
+/*
+--parse_command_line--
+description:
+a. get method of request;
+b. target file or direct;
+c. http propery;
+*/
 static void
 parse_command_line(my_request)
 request_t * my_request;
@@ -87,14 +93,13 @@ request_t * my_request;
 
     
     method_buf = (char *)malloc(50);
-    url        = (char *)malloc(1024);
+	memset(method_buf ,0 , 50);
     comm_line = my_request->comm_line;
     cur_char  = *(comm_line);
     while(!isspace(cur_char) && cur_index<50 -1)
     {
       *(method_buf + cur_index) = *(comm_line+cur_index);
-      cur_index++;
-      cur_char = *(comm_line+ cur_index);
+      cur_char = *(comm_line+ ++cur_index);
     }
     *(method_buf+cur_index) = '\0';
     
@@ -102,16 +107,16 @@ request_t * my_request;
     if(0 == strncasecmp(method_buf, "GET", 3))
     {
         my_request->method     = GET;
-        my_request->method_off = cur_index+1;
-	method_off             = cur_index+1;
+        my_request->method_last = my_request->comm_line;
+		my_request->method_size = 3;
     }
 
     //post
     if(0 == strncasecmp(method_buf, "POST",4))
     {
         my_request->method     = POST;
-        my_request->method_off = cur_index+1;
-        method_off             = cur_index+1;
+        my_request->method_last = my_request->comm_line;
+		my_request->method_size = 4;
     }
 
     //other
@@ -120,16 +125,13 @@ request_t * my_request;
     //get url
     cur_index++;
     cur_char = *(comm_line+cur_index);
+	my_request->url_last = comm_line + cur_index;
     while(!isspace(cur_char) && 
-          cur_index-method_off<1024)
+          cur_index- my_request->method_size <1024)
     {
-      *(url+cur_index-method_off) = *(comm_line+cur_index);
-      cur_index++;
-      cur_char = *(comm_line+ cur_index);
+      cur_char = *(comm_line+ (++cur_index));
     }
-    *(url+ cur_index -method_off) = '\0';
-    strcpy(my_request->url, url);
-    free(url);
+	my_request->url_size = cur_index - my_request->method_size -1;	
 }
 
 //get_file_path
@@ -139,26 +141,33 @@ request_t * my_request;
 {
     char * template_file_path="./www/%s";
     char *buf;
-    char cur_char='\0';
-    int cur_index=0;
+    char cur_char = '\0';
+    int cur_index = 0;
     int buf_index = 0;
 
     buf = (char *)malloc(1024);
-    cur_char = *(my_request->url+cur_index);
+    cur_char = *(my_request->url_last + cur_index);
     if('/' == cur_char)
 	{
 		cur_index++;
-		cur_char = *(my_request->url+ cur_index);
+		cur_char = *(my_request->url_last + cur_index);
     }
     while('?' != cur_char 
-          && cur_index < strlen(my_request->url)  )
+          && cur_index < my_request->url_size)
     {
         *(buf+buf_index) = cur_char;
         cur_index++;
 		buf_index++;
-        cur_char = *(my_request->url+cur_index);
+        cur_char = *(my_request->url_last + cur_index);
     }
     *(buf+ buf_index)= '\0';
 
     sprintf(my_request->file_path, template_file_path, buf);
+}
+
+
+static void 
+parse_param(request_t * my_request)
+{
+	
 }
