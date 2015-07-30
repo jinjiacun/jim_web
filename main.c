@@ -27,6 +27,9 @@ int main()
     my_addr.sin_addr.s_addr=INADDR_ANY;//服务器IP地址--允许连接到所有本地地址上
     my_addr.sin_port=htons(8000); //服务器端口号
     int nready;
+	struct sigaction sa;
+	sa.sa_handler = SIG_IGN;
+	sigaction( SIGPIPE, &sa, 0 );
 	//signal(SIGCHLD, cleanup);
 
     /*创建服务器端套接字--IPv4协议，面向连接通信，TCP协议*/
@@ -63,7 +66,12 @@ int main()
     for(;;)
 	{
         reset = allset;
-        nready = select(maxfd+1, &reset, NULL, NULL, NULL); 
+        nready = select(maxfd+1, &reset, NULL, NULL, NULL);
+		if(nready < 0)
+		{
+			perror("select error\n");
+			break;
+		} 
         
 		if(FD_ISSET(server_sockfd, &reset))
         {
@@ -97,8 +105,9 @@ int main()
             if(FD_ISSET(sockfd, &reset)){            	
                my_request = do_request(sockfd);
                do_response(my_request);
-               close(sockfd);
-
+			   FD_CLR(client[i], &allset);
+               close(client[i]);	
+			   client[i] = -1;
                if(--nready <=0)
 					break;    
             }

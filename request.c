@@ -62,7 +62,11 @@ request_t * my_request;
     unsigned int buff_len;
 
     comm_line_len = my_request->comm_line_size;
-    recv(my_request->client_sockfd, buff, my_request->comm_line_size, 0);
+    if(recv(my_request->client_sockfd, buff, my_request->comm_line_size, 0) <= 0)
+	{
+		close(my_request->client_sockfd);
+		return;
+	}
     buff_len = strlen(buff);
     cur_char = buff[cur_index];
     while('\r' != cur_char && cur_index < buff_len-1)
